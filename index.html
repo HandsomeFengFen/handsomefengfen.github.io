@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡路里計算機 | 免費線上 BMR、TDEE 與飲食熱量查詢工具</title>
+<meta name="description" content="免費線上卡路里計算機，輸入身高體重即可計算每日基礎代謝率（BMR）與總消耗熱量（TDEE），並查詢超過 100 種食物熱量，幫助你輕鬆控制飲食。">
+<meta name="keywords" content="卡路里計算,BMR,TDEE,熱量計算,食物熱量,減重計算,每日熱量需求">
+
+<!-- ✅ Google AdSense：將 ca-pub-XXXXXXXXXXXXXXXX 換成你的發布商 ID -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --border: #e0ddd6;
+    --text: #1a1a18;
+    --text2: #6b6860;
+    --text3: #9e9b95;
+    --green: #1D9E75;
+    --green-light: #E1F5EE;
+    --blue: #378ADD;
+    --blue-light: #E6F1FB;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --red: #E24B4A;
+    --red-light: #FCEBEB;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { font-size: 18px; font-weight: 700; color: var(--green); letter-spacing: -0.02em; }
+  .logo span { color: var(--text); font-weight: 400; font-size: 14px; margin-left: 6px; }
+
+  .main-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 700px) {
+    .main-wrap { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  /* ── Ad slots ── */
+  .ad-slot {
+    background: var(--surface2);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text3);
+    font-size: 12px;
+    text-align: center;
+  }
+  .ad-top { width: 100%; min-height: 90px; margin-bottom: 20px; }
+  .ad-sidebar { width: 100%; min-height: 250px; margin-bottom: 20px; }
+  .ad-mid { width: 100%; min-height: 90px; margin: 20px 0; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title svg { width: 18px; height: 18px; stroke: var(--green); fill: none; stroke-width: 2; }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 6px; margin-bottom: 22px; }
+  .tab {
+    padding: 8px 18px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text2);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tab:hover { background: var(--surface2); }
+  .tab.active { background: var(--green); color: #fff; border-color: var(--green); font-weight: 500; }
+
+  /* ── Form ── */
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 480px) { .field-grid { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 13px; color: var(--text2); font-weight: 500; }
+  input[type=number], input[type=text], select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus { border-color: var(--green); }
+
+  .radio-group { display: flex; gap: 8px; }
+  .radio-group label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .radio-group label.chosen { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 500; }
+  .radio-group input { display: none; }
+
+  /* ── Results ── */
+  .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0 16px; }
+  @media (max-width: 480px) { .result-grid { grid-template-columns: 1fr; } }
+  .metric-card {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .metric-card .val { font-size: 22px; font-weight: 700; color: var(--text); }
+  .metric-card .val.green { color: var(--green); }
+  .metric-card .val.red { color: var(--red); }
+  .metric-card .lbl { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+
+  /* ── Macro bars ── */
+  .section-label { font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
+  .bar-row { margin-bottom: 12px; }
+  .bar-meta { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .bar-meta .name { color: var(--text2); }
+  .bar-meta .val { color: var(--text); font-weight: 500; }
+  .bar-track { height: 8px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .bar-fill.p { background: var(--green); }
+  .bar-fill.c { background: var(--blue); }
+  .bar-fill.f { background: var(--amber); }
+
+  /* ── Food search ── */
+  .search-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .search-row input { flex: 1; }
+  .category-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .pill {
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text2);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .pill:hover { background: var(--surface2); }
+  .pill.active { background: var(--blue-light); border-color: var(--blue); color: var(--blue); font-weight: 500; }
+
+  .food-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .food-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: default;
+    transition: background 0.1s;
+  }
+  .food-item:last-child { border-bottom: none; }
+  .food-item:hover { background: var(--surface2); }
+  .food-item .info { flex: 1; }
+  .food-item .food-name { font-size: 14px; }
+  .food-item .food-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .food-item .right { display: flex; align-items: center; gap: 12px; }
+  .food-item .kcal { font-size: 13px; color: var(--text2); white-space: nowrap; }
+  .add-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    border: 1px solid var(--green);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--green);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .add-btn:hover { background: var(--green); color: #fff; }
+
+  /* ── Log ── */
+  .log-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .log-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-kcal { font-size: 13px; color: var(--text2); }
+  .remove-btn { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 20px; line-height: 1; padding: 0 0 0 10px; }
+  .remove-btn:hover { color: var(--red); }
+  .no-log { padding: 24px; text-align: center; font-size: 14px; color: var(--text3); }
+
+  .log-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+
+  /* ── Sidebar ── */
+  .sidebar { }
+  .tip-box {
+    background: var(--green-light);
+    border: 1px solid #9FE1CB;
+    border-radius: var(--radius);
+    padding: 16px;
+    font-size: 13px;
+    color: #085041;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .tip-box strong { display: block; font-size: 14px; margin-bottom: 6px; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text3);
+  }
+  footer a { color: var(--text2); text-decoration: none; }
+
+  .hidden { display: none; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">卡路里計算機 <span>免費線上工具</span></div>
+    <div style="font-size:13px;color:var(--text3);">BMR · TDEE · 飲食記錄</div>
+  </div>
+</header>
+
+<!-- ✅ 廣告位置：頁首橫幅廣告 (728x90 Leaderboard) -->
+<div style="max-width:900px;margin:16px auto;padding:0 20px;">
+  <div class="ad-slot ad-top">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="XXXXXXXXXX"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+  <!-- ── 主要內容 ── -->
+  <div class="content">
+
+    <div class="card">
+      <div class="tab-bar">
+        <button class="tab active" onclick="showTab('bmr',this)">每日熱量需求</button>
+        <button class="tab" onclick="showTab('food',this)">食物熱量查詢</button>
+        <button class="tab" onclick="showTab('log',this)">今日飲食記錄</button>
+      </div>
+
+      <!-- ── Tab 1: BMR / TDEE ── -->
+      <div id="tab-bmr">
+        <div class="field-grid">
+          <div class="field">
+            <label>性別</label>
+            <div class="radio-group">
+              <label id="lbl-m" class="chosen"><input type="radio" name="gender" value="male" checked onchange="calc()"> 男性</label>
+              <label id="lbl-f"><input type="radio" name="gender" value="female" onchange="calc()"> 女性</label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="age">年齡（歲）</label>
+            <input type="number" id="age" value="28" min="10" max="100" oninput="calc()">
+          </div>
+          <div class="field">
+            <label for="height">身高（cm）</label>
+            <input type="number" id="height" value="170" min="100" max="250" oninput="calc()">
+          </div>
+          <div class="field">
+            <label for="weight">體重（kg）</label>
+            <input type="number" id="weight" value="65" min="30" max="300" oninput="calc()">
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label for="activity">活動量</label>
+          <select id="activity" onchange="calc()">
+            <option value="1.2">久坐（幾乎不運動）</option>
+            <option value="1.375">輕度活動（每週 1–3 天）</option>
+            <option value="1.55" selected>中度活動（每週 3–5 天）</option>
+            <option value="1.725">高度活動（每週 6–7 天）</option>
+            <option value="1.9">非常高強度（體力勞動或每天訓練）</option>
+          </select>
+        </div>
+
+        <div class="field" style="margin-bottom:4px;">
+          <label for="goal">目標</label>
+          <select id="goal" onchange="calc()">
+            <option value="0.8">快速減重（減少 20%）</option>
+            <option value="0.85">減重（減少 15%）</option>
+            <option value="0.9">緩慢減重（減少 10%）</option>
+            <option value="1" selected>維持體重</option>
+            <option value="1.1">增重（增加 10%）</option>
+            <option value="1.2">快速增肌（增加 20%）</option>
+          </select>
+        </div>
+
+        <div class="result-grid">
+          <div class="metric-card">
+            <div class="val" id="r-bmr">—</div>
+            <div class="lbl">基礎代謝率 BMR<br><small style="font-size:11px;">(完全靜止)</small></div>
+          </div>
+          <div class="metric-card">
+            <div class="val" id="r-tdee">—</div>
+            <div class="lbl">每日總消耗 TDEE<br><small style="font-size:11px;">(含活動量)</small></div>
+          </div>
+          <div class="metric-card">
+            <div class="val green" id="r-target">—</div>
+            <div class="lbl">建議每日攝取<br><small style="font-size:11px;">(依目標調整)</small></div>
+          </div>
+        </div>
+
+        <div class="section-label">建議三大營養素</div>
+        <div class="bar-row">
+          <div class="bar-meta"><span class="name">🥩 蛋白質（30%）</span><span class="val" id="m-p">—</span></div>
+          <div class="bar-track"><div class="bar-fill p" id="b-p" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta"><span class="name">🍚 碳水化合物（50%）</span><span class="val" id="m-c">—</span></div>
+          <div class="bar-track"><div class="bar-fill c" id="b-c" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta"><span class="name">🫒 脂肪（20%）</span><span class="val" id="m-f">—</span></div>
+          <div class="bar-track"><div class="bar-fill f" id="b-f" style="width:0%"></div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px;">以 Mifflin-St Jeor 公式計算，營養素比例僅供參考，建議依個人情況調整。</div>
+      </div>
+
+      <!-- ✅ 廣告位置：內容中間橫幅 (切換 tab 時顯示) -->
+      <div class="ad-slot ad-mid" id="ad-mid">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="XXXXXXXXXX"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+
+      <!-- ── Tab 2: 食物查詢 ── -->
+      <div id="tab-food" class="hidden">
+        <div class="search-row">
+          <input type="text" id="food-input" placeholder="搜尋食物名稱，例如：雞蛋、白飯、珍奶..." oninput="searchFood()">
+        </div>
+        <div class="category-pills" id="category-pills"></div>
+        <div id="food-results"></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:10px;">共收錄 <span id="food-count"></span> 種食物｜資料僅供參考，實際熱量依品牌及烹調方式而異</div>
+      </div>
+
+      <!-- ── Tab 3: 飲食記錄 ── -->
+      <div id="tab-log" class="hidden">
+        <div id="log-list"><div class="no-log">尚未新增任何食物，請至「食物熱量查詢」新增</div></div>
+        <div class="log-summary">
+          <div class="metric-card">
+            <div class="val" id="log-total">0 kcal</div>
+            <div class="lbl">今日已攝取</div>
+          </div>
+          <div class="metric-card">
+            <div class="val green" id="log-remain">—</div>
+            <div class="lbl">距離每日目標</div>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:12px;">
+          <button onclick="clearLog()" style="font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-family:inherit;color:var(--text2);">清除今日記錄</button>
+        </div>
+      </div>
+
+    </div><!-- /.card -->
+
+  </div><!-- /.content -->
+
+  <!-- ── 側邊欄 ── -->
+  <div class="sidebar">
+
+    <!-- ✅ 廣告位置：側邊欄方塊廣告 (300x250 Rectangle) -->
+    <div class="ad-slot ad-sidebar">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 減重小知識</strong>
+      每天減少 500 kcal，大約一週可減輕 0.5 公斤體重。建議搭配規律運動，效果更佳。
+    </div>
+
+    <div class="tip-box" style="background:var(--blue-light);border-color:#B5D4F4;color:#042C53;">
+      <strong>📊 BMI 快速換算</strong>
+      BMI = 體重(kg) ÷ 身高(m)²<br>
+      18.5–24 為正常範圍，<br>
+      24–27 為過重，27 以上為肥胖。
+    </div>
+
+    <div class="tip-box" style="background:var(--amber-light);border-color:#FAC775;color:#412402;">
+      <strong>🥤 每日喝水量建議</strong>
+      體重 × 30–35 ml<br>
+      例：65 kg × 33 ml ≈ 2,145 ml<br>
+      約 2–2.5 公升/天
+    </div>
+
+    <!-- ✅ 廣告位置：側邊欄第二個廣告 -->
+    <div class="ad-slot ad-sidebar" style="margin-top:16px;">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+  </div><!-- /.sidebar -->
+</div><!-- /.main-wrap -->
+
+<footer>
+  <p>© 2026 卡路里計算機 · 免費線上工具 ·
+    <a href="privacy.html">隱私權政策</a> ·
+    <a href="disclaimer.html">免責聲明</a>
+  </p>
+  <p style="margin-top:10px;font-size:11px;color:#aaa;max-width:700px;margin-left:auto;margin-right:auto;">
+    免責聲明：本網站所提供之卡路里與營養素計算結果，僅供一般健康參考用途，不構成任何醫療診斷、治療建議或專業醫學意見。每個人的身體狀況不同，實際數值可能因個人差異而有所不同。如有任何健康疑慮，請務必諮詢合格之醫師或營養師。本站對於因使用本工具所產生之任何直接或間接損失，不負任何法律責任。
+  </p>
+</footer>
+
+<script>
+// ── 食物資料庫（100+ 種）──
+const foods = [
+  // 主食
+  {n:"白飯",s:"1碗 200g",k:260,cat:"主食"},
+  {n:"糙米飯",s:"1碗 200g",k:222,cat:"主食"},
+  {n:"白吐司",s:"1片 30g",k:79,cat:"主食"},
+  {n:"全麥吐司",s:"1片 30g",k:75,cat:"主食"},
+  {n:"饅頭",s:"1個 80g",k:200,cat:"主食"},
+  {n:"貝果",s:"1個 100g",k:270,cat:"主食"},
+  {n:"義大利麵",s:"乾麵 80g",k:280,cat:"主食"},
+  {n:"烏龍麵",s:"1份 200g",k:210,cat:"主食"},
+  {n:"米粉",s:"乾 80g",k:290,cat:"主食"},
+  {n:"玉米",s:"1根 200g",k:176,cat:"主食"},
+  {n:"地瓜",s:"100g",k:86,cat:"主食"},
+  {n:"馬鈴薯",s:"100g",k:77,cat:"主食"},
+  {n:"南瓜",s:"100g",k:49,cat:"主食"},
+  {n:"山藥",s:"100g",k:65,cat:"主食"},
+
+  // 蛋白質
+  {n:"水煮雞胸肉",s:"100g",k:165,cat:"蛋白質"},
+  {n:"雞腿肉（去皮）",s:"100g",k:175,cat:"蛋白質"},
+  {n:"豬里肌",s:"100g",k:212,cat:"蛋白質"},
+  {n:"豬五花",s:"100g",k:395,cat:"蛋白質"},
+  {n:"牛肉（瘦）",s:"100g",k:158,cat:"蛋白質"},
+  {n:"牛肉（一般）",s:"100g",k:250,cat:"蛋白質"},
+  {n:"羊肉",s:"100g",k:206,cat:"蛋白質"},
+  {n:"鮭魚",s:"100g",k:208,cat:"蛋白質"},
+  {n:"鮪魚罐頭（水漬）",s:"100g",k:116,cat:"蛋白質"},
+  {n:"鯖魚",s:"100g",k:205,cat:"蛋白質"},
+  {n:"蝦子",s:"100g",k:99,cat:"蛋白質"},
+  {n:"花枝",s:"100g",k:92,cat:"蛋白質"},
+  {n:"雞蛋",s:"1顆 60g",k:86,cat:"蛋白質"},
+  {n:"水煮蛋",s:"1顆 60g",k:78,cat:"蛋白質"},
+  {n:"豆腐（嫩）",s:"100g",k:55,cat:"蛋白質"},
+  {n:"豆腐（板）",s:"100g",k:76,cat:"蛋白質"},
+  {n:"毛豆",s:"100g",k:122,cat:"蛋白質"},
+  {n:"黃豆",s:"100g",k:381,cat:"蛋白質"},
+
+  // 乳製品
+  {n:"全脂牛奶",s:"240ml",k:150,cat:"乳製品"},
+  {n:"低脂牛奶",s:"240ml",k:102,cat:"乳製品"},
+  {n:"無糖豆漿",s:"250ml",k:110,cat:"乳製品"},
+  {n:"希臘優格（原味）",s:"100g",k:100,cat:"乳製品"},
+  {n:"一般優格",s:"100g",k:61,cat:"乳製品"},
+  {n:"起司片",s:"1片 20g",k:70,cat:"乳製品"},
+  {n:"茅屋起司",s:"100g",k:98,cat:"乳製品"},
+  {n:"無糖燕麥奶",s:"240ml",k:120,cat:"乳製品"},
+  {n:"冰淇淋",s:"1球 100g",k:207,cat:"乳製品"},
+
+  // 蔬菜
+  {n:"花椰菜",s:"100g",k:34,cat:"蔬菜"},
+  {n:"菠菜",s:"100g",k:23,cat:"蔬菜"},
+  {n:"高麗菜",s:"100g",k:25,cat:"蔬菜"},
+  {n:"空心菜",s:"100g",k:28,cat:"蔬菜"},
+  {n:"青江菜",s:"100g",k:15,cat:"蔬菜"},
+  {n:"番茄",s:"1顆 100g",k:18,cat:"蔬菜"},
+  {n:"小黃瓜",s:"100g",k:16,cat:"蔬菜"},
+  {n:"苦瓜",s:"100g",k:22,cat:"蔬菜"},
+  {n:"胡蘿蔔",s:"100g",k:41,cat:"蔬菜"},
+  {n:"洋蔥",s:"100g",k:40,cat:"蔬菜"},
+  {n:"香菇",s:"100g",k:35,cat:"蔬菜"},
+  {n:"秀珍菇",s:"100g",k:24,cat:"蔬菜"},
+  {n:"玉米筍",s:"100g",k:33,cat:"蔬菜"},
+  {n:"酪梨",s:"100g",k:160,cat:"蔬菜"},
+
+  // 水果
+  {n:"香蕉",s:"1根 120g",k:107,cat:"水果"},
+  {n:"蘋果",s:"1顆 200g",k:104,cat:"水果"},
+  {n:"奇異果",s:"1顆 100g",k:61,cat:"水果"},
+  {n:"橘子",s:"1顆 150g",k:72,cat:"水果"},
+  {n:"西瓜",s:"200g",k:60,cat:"水果"},
+  {n:"葡萄",s:"100g",k:69,cat:"水果"},
+  {n:"草莓",s:"100g",k:32,cat:"水果"},
+  {n:"芒果",s:"100g",k:66,cat:"水果"},
+  {n:"木瓜",s:"100g",k:39,cat:"水果"},
+  {n:"藍莓",s:"100g",k:57,cat:"水果"},
+  {n:"芭樂",s:"1顆 200g",k:68,cat:"水果"},
+  {n:"鳳梨",s:"100g",k:50,cat:"水果"},
+
+  // 油脂 / 堅果
+  {n:"花生醬",s:"1匙 15g",k:94,cat:"油脂堅果"},
+  {n:"橄欖油",s:"1匙 10ml",k:90,cat:"油脂堅果"},
+  {n:"奶油",s:"1匙 10g",k:72,cat:"油脂堅果"},
+  {n:"綜合堅果",s:"30g",k:185,cat:"油脂堅果"},
+  {n:"核桃",s:"30g",k:196,cat:"油脂堅果"},
+  {n:"杏仁",s:"30g",k:173,cat:"油脂堅果"},
+  {n:"腰果",s:"30g",k:163,cat:"油脂堅果"},
+
+  // 飲料
+  {n:"黑咖啡（無糖）",s:"240ml",k:5,cat:"飲料"},
+  {n:"拿鐵（全脂）",s:"360ml",k:190,cat:"飲料"},
+  {n:"珍珠奶茶",s:"700ml",k:430,cat:"飲料"},
+  {n:"可樂",s:"350ml",k:140,cat:"飲料"},
+  {n:"柳橙汁（100%）",s:"240ml",k:112,cat:"飲料"},
+  {n:"運動飲料",s:"500ml",k:130,cat:"飲料"},
+  {n:"啤酒",s:"350ml",k:154,cat:"飲料"},
+  {n:"紅酒",s:"150ml",k:125,cat:"飲料"},
+  {n:"能量飲料",s:"250ml",k:112,cat:"飲料"},
+  {n:"無糖綠茶",s:"500ml",k:5,cat:"飲料"},
+
+  // 外食 / 便當
+  {n:"雞腿便當",s:"1個",k:750,cat:"外食"},
+  {n:"排骨便當",k:800,s:"1個",cat:"外食"},
+  {n:"控肉便當",s:"1個",k:850,cat:"外食"},
+  {n:"滷肉飯",s:"1碗",k:420,cat:"外食"},
+  {n:"炒麵",s:"1份",k:550,cat:"外食"},
+  {n:"炒飯",s:"1份",k:600,cat:"外食"},
+  {n:"水餃",s:"10顆",k:350,cat:"外食"},
+  {n:"鍋貼",s:"6個",k:380,cat:"外食"},
+  {n:"拉麵",s:"1碗",k:540,cat:"外食"},
+  {n:"牛肉麵",s:"1碗",k:680,cat:"外食"},
+  {n:"陽春麵",s:"1碗",k:320,cat:"外食"},
+  {n:"豬血糕",s:"1份 100g",k:160,cat:"外食"},
+  {n:"臭豆腐",s:"1份",k:350,cat:"外食"},
+  {n:"鹽酥雞",s:"100g",k:330,cat:"外食"},
+
+  // 速食
+  {n:"麥當勞大麥克",s:"1個",k:550,cat:"速食"},
+  {n:"麥當勞麥辣雞腿堡",s:"1個",k:490,cat:"速食"},
+  {n:"薯條（中）",s:"1份",k:340,cat:"速食"},
+  {n:"麥當勞麥克雞塊",s:"6塊",k:280,cat:"速食"},
+  {n:"肯德基炸雞腿",s:"1隻",k:380,cat:"速食"},
+  {n:"披薩（起司）",s:"1片",k:285,cat:"速食"},
+  {n:"熱狗",s:"1根",k:180,cat:"速食"},
+
+  // 零食 / 甜點
+  {n:"巧克力（黑）",s:"30g",k:170,cat:"零食甜點"},
+  {n:"餅乾（奶油）",s:"3片 30g",k:150,cat:"零食甜點"},
+  {n:"洋芋片",s:"30g",k:160,cat:"零食甜點"},
+  {n:"蛋糕（起司）",s:"1片 100g",k:320,cat:"零食甜點"},
+  {n:"麻糬",s:"1個 50g",k:120,cat:"零食甜點"},
+  {n:"布丁",s:"1個 100g",k:115,cat:"零食甜點"},
+  {n:"太陽餅",s:"1個 50g",k:200,cat:"零食甜點"},
+  {n:"鳳梨酥",s:"1個 60g",k:240,cat:"零食甜點"},
+  {n:"蛋黃酥",s:"1個 70g",k:290,cat:"零食甜點"},
+  {n:"仙貝（米果）",s:"30g",k:120,cat:"零食甜點"},
+];
+
+const categories = ["全部","主食","蛋白質","乳製品","蔬菜","水果","油脂堅果","飲料","外食","速食","零食甜點"];
+let currentCat = "全部";
+let log = [];
+let targetKcal = 0;
+
+// 初始化
+document.getElementById('food-count').textContent = foods.length;
+renderCategoryPills();
+calc();
+
+function renderCategoryPills(){
+  const el = document.getElementById('category-pills');
+  el.innerHTML = categories.map(c =>
+    `<button class="pill ${c===currentCat?'active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setCat(c){
+  currentCat = c;
+  renderCategoryPills();
+  searchFood();
+}
+
+function showTab(t, btn){
+  ['bmr','food','log'].forEach(id => document.getElementById('tab-'+id).classList.add('hidden'));
+  document.getElementById('tab-'+t).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(t === 'food') searchFood();
+  if(t === 'log') renderLog();
+}
+
+function calc(){
+  const gender = document.querySelector('input[name=gender]:checked')?.value || 'male';
+  const age = parseFloat(document.getElementById('age').value) || 28;
+  const h = parseFloat(document.getElementById('height').value) || 170;
+  const w = parseFloat(document.getElementById('weight').value) || 65;
+  const act = parseFloat(document.getElementById('activity').value) || 1.55;
+  const goal = parseFloat(document.getElementById('goal').value) || 1;
+
+  document.querySelectorAll('.radio-group label').forEach(l => l.classList.remove('chosen'));
+  const sel = document.querySelector('input[name=gender]:checked');
+  if(sel) sel.parentElement.classList.add('chosen');
+
+  let bmr = gender === 'male'
+    ? (10*w + 6.25*h - 5*age + 5)
+    : (10*w + 6.25*h - 5*age - 161);
+  const tdee = Math.round(bmr * act);
+  bmr = Math.round(bmr);
+  targetKcal = Math.round(tdee * goal);
+
+  document.getElementById('r-bmr').textContent = bmr.toLocaleString() + ' kcal';
+  document.getElementById('r-tdee').textContent = tdee.toLocaleString() + ' kcal';
+  document.getElementById('r-target').textContent = targetKcal.toLocaleString() + ' kcal';
+
+  const p = Math.round(targetKcal * 0.30 / 4);
+  const c = Math.round(targetKcal * 0.50 / 4);
+  const f = Math.round(targetKcal * 0.20 / 9);
+  document.getElementById('m-p').textContent = p + 'g';
+  document.getElementById('m-c').textContent = c + 'g';
+  document.getElementById('m-f').textContent = f + 'g';
+  document.getElementById('b-p').style.width = '30%';
+  document.getElementById('b-c').style.width = '50%';
+  document.getElementById('b-f').style.width = '20%';
+  updateLogRemain();
+}
+
+function searchFood(){
+  const q = (document.getElementById('food-input')?.value || '').trim().toLowerCase();
+  let list = foods;
+  if(currentCat !== '全部') list = list.filter(f => f.cat === currentCat);
+  if(q) list = list.filter(f => f.n.toLowerCase().includes(q));
+
+  const res = document.getElementById('food-results');
+  if(!list.length){
+    res.innerHTML = '<div style="font-size:14px;color:var(--text3);padding:12px 0;">找不到相符食物</div>';
+    return;
+  }
+  res.innerHTML = '<div class="food-list">' + list.slice(0,12).map(f =>
+    `<div class="food-item">
+      <div class="info">
+        <div class="food-name">${f.n}</div>
+        <div class="food-sub">${f.s}</div>
+      </div>
+      <div class="right">
+        <span class="kcal">${f.k} kcal</span>
+        <button class="add-btn" onclick="addFood('${f.n.replace(/'/g,"\\'")}','${f.s}',${f.k})">+ 加入記錄</button>
+      </div>
+    </div>`
+  ).join('') + '</div>';
+}
+
+function addFood(name, serving, kcal){
+  log.push({name, serving, kcal});
+  renderLog();
+  updateLogRemain();
+  // 切換到記錄頁
+  showTab('log', document.querySelectorAll('.tab')[2]);
+}
+
+function removeFood(i){
+  log.splice(i, 1);
+  renderLog();
+  updateLogRemain();
+}
+
+function clearLog(){
+  if(confirm('確定要清除今日所有記錄？')){
+    log = [];
+    renderLog();
+    updateLogRemain();
+  }
+}
+
+function renderLog(){
+  const el = document.getElementById('log-list');
+  if(!log.length){
+    el.innerHTML = '<div class="no-log">尚未新增任何食物<br><small>請至「食物熱量查詢」新增</small></div>';
+  } else {
+    el.innerHTML = '<div class="log-list">' + log.map((f,i) =>
+      `<div class="log-item">
+        <div>
+          <div style="font-size:14px;">${f.name}</div>
+          <div style="font-size:11px;color:var(--text3);">${f.serving}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="log-kcal">${f.kcal} kcal</span>
+          <button class="remove-btn" onclick="removeFood(${i})" title="移除">×</button>
+        </div>
+      </div>`
+    ).join('') + '</div>';
+  }
+  const total = log.reduce((s,f) => s+f.kcal, 0);
+  document.getElementById('log-total').textContent = total.toLocaleString() + ' kcal';
+}
+
+function updateLogRemain(){
+  const total = log.reduce((s,f) => s+f.kcal, 0);
+  const el = document.getElementById('log-remain');
+  if(!targetKcal){ el.textContent = '請先計算需求'; el.className = 'val'; return; }
+  const remain = targetKcal - total;
+  if(remain >= 0){
+    el.textContent = '還可吃 ' + remain.toLocaleString() + ' kcal';
+    el.className = 'val green';
+  } else {
+    el.textContent = '超標 ' + Math.abs(remain).toLocaleString() + ' kcal';
+    el.className = 'val red';
+  }
+}
+
+// 初始顯示食物列表
+searchFood();
+</script>
+</body>
+</html>
